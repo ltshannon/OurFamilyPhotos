@@ -8,17 +8,26 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.firebaseSignInWithApple) var firebaseSignInWithApple
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            switch firebaseSignInWithApple.state {
+            case .loading:
+                ProgressView()
+            case .authenticating:
+                ProgressView()
+            case .notAuthenticated:
+                AuthView()
+            case .authenticated:
+                HomeView()
+            }
         }
-        .padding()
+        .onChange(of: firebaseSignInWithApple.state) { oldValue, newValue in
+            debugPrint("old: \(oldValue), new: \(newValue)")
+        }
     }
 }
-
 #Preview {
     ContentView()
 }

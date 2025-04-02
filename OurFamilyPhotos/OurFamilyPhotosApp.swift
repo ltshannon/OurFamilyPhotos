@@ -6,12 +6,22 @@
 //
 
 import SwiftUI
+import FirebaseSignInWithApple
 
 @main
 struct OurFamilyPhotosApp: App {
+    @StateObject var appNavigationState = AppNavigationState()
+    @StateObject var firebaseService = FirebaseService.shared
+    @StateObject var settingsService = SettingsService.shared
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(appNavigationState)
+                .environmentObject(firebaseService)
+                .environmentObject(settingsService)
+                .configureFirebaseSignInWithAppleWith(firestoreUserCollectionPath: Path.Firestore.profiles)
         }
     }
 }

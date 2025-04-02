@@ -6,13 +6,34 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B12744F72D9CB3B90070A4D0 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B12744F62D9CB3B90070A4D0 /* FirebaseAnalytics */; };
+		B12744F92D9CB3B90070A4D0 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B12744F82D9CB3B90070A4D0 /* FirebaseAuth */; };
+		B12744FB2D9CB3B90070A4D0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B12744FA2D9CB3B90070A4D0 /* FirebaseFirestore */; };
+		B12744FD2D9CB3B90070A4D0 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B12744FC2D9CB3B90070A4D0 /* FirebaseStorage */; };
+		B127452E2D9CC4080070A4D0 /* FirebaseSignInWithApple in Frameworks */ = {isa = PBXBuildFile; productRef = B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		B12744E22D9CB12F0070A4D0 /* OurFamilyPhotos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OurFamilyPhotos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B1C197DE2D9CCAB400E235EF /* Exceptions for "OurFamilyPhotos" folder in "OurFamilyPhotos" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B12744E12D9CB12F0070A4D0 /* OurFamilyPhotos */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B12744E42D9CB12F0070A4D0 /* OurFamilyPhotos */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B1C197DE2D9CCAB400E235EF /* Exceptions for "OurFamilyPhotos" folder in "OurFamilyPhotos" target */,
+			);
 			path = OurFamilyPhotos;
 			sourceTree = "<group>";
 		};
@@ -23,6 +44,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B12744F72D9CB3B90070A4D0 /* FirebaseAnalytics in Frameworks */,
+				B12744FD2D9CB3B90070A4D0 /* FirebaseStorage in Frameworks */,
+				B12744F92D9CB3B90070A4D0 /* FirebaseAuth in Frameworks */,
+				B12744FB2D9CB3B90070A4D0 /* FirebaseFirestore in Frameworks */,
+				B127452E2D9CC4080070A4D0 /* FirebaseSignInWithApple in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +91,11 @@
 			);
 			name = OurFamilyPhotos;
 			packageProductDependencies = (
+				B12744F62D9CB3B90070A4D0 /* FirebaseAnalytics */,
+				B12744F82D9CB3B90070A4D0 /* FirebaseAuth */,
+				B12744FA2D9CB3B90070A4D0 /* FirebaseFirestore */,
+				B12744FC2D9CB3B90070A4D0 /* FirebaseStorage */,
+				B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */,
 			);
 			productName = OurFamilyPhotos;
 			productReference = B12744E22D9CB12F0070A4D0 /* OurFamilyPhotos.app */;
@@ -94,6 +125,10 @@
 			);
 			mainGroup = B12744D92D9CB12F0070A4D0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				B127452C2D9CC4080070A4D0 /* XCLocalSwiftPackageReference "../FirebaseSignInWithApple" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B12744E32D9CB12F0070A4D0 /* Products */;
 			projectDirPath = "";
@@ -249,13 +284,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = OurFamilyPhotos/OurFamilyPhotos.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"OurFamilyPhotos/Preview Content\"";
 				DEVELOPMENT_TEAM = DDDAQ32TPA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = OurFamilyPhotos/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -264,9 +300,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.breakawaydesign.OurFamilyPhotos;
+				MARKETING_VERSION = 1.03;
+				PRODUCT_BUNDLE_IDENTIFIER = com.breakawaydesign.MyFamilyPhotos;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -278,13 +317,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = OurFamilyPhotos/OurFamilyPhotos.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"OurFamilyPhotos/Preview Content\"";
 				DEVELOPMENT_TEAM = DDDAQ32TPA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = OurFamilyPhotos/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -293,9 +333,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.breakawaydesign.OurFamilyPhotos;
+				MARKETING_VERSION = 1.03;
+				PRODUCT_BUNDLE_IDENTIFIER = com.breakawaydesign.MyFamilyPhotos;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -324,6 +367,51 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		B127452C2D9CC4080070A4D0 /* XCLocalSwiftPackageReference "../FirebaseSignInWithApple" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../FirebaseSignInWithApple;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B12744F62D9CB3B90070A4D0 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		B12744F82D9CB3B90070A4D0 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		B12744FA2D9CB3B90070A4D0 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		B12744FC2D9CB3B90070A4D0 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseSignInWithApple;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B12744DA2D9CB12F0070A4D0 /* Project object */;
 }
