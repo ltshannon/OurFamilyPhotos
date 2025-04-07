@@ -22,34 +22,44 @@ struct PublicFoldersView: View {
     @State var showingDeleteAlert = false
     @State var showingEditDescriptionAlert = false
     @State var showingPublicAutoView = false
+    @State var showingNoAccessToFolder = false
     @State var newFolderName: String = ""
+    @State var noAccessUserName: String = ""
+    @State var forNoAccessUserName = false
     @State var errorString: String = ""
     @State var newName = ""
+    @State var firstTime: Bool = true
+    @State var userId: String = ""
     let database = Firestore.firestore()
     
     var body: some View {
         NavigationStack(path: $appNavigationState.photosPublicNavigation) {
             List {
-                ForEach(firebaseService.publicFolderInfos, id: \.id) { item in
+                ForEach(0..<firebaseService.publicFolderInfos.count, id: \.self) { index in
+                    let item = firebaseService.publicFolderInfos[index]
                     HStack {
                         Text(item.name)
                         Spacer()
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        switch settingsService.puplicPhotoDisplay {
-                        case .automaticDisplay:
-                            selectedItem = item
-                            showingPublicAutoView = true
-                        case .galleryDisplay:
-                            let parameters = PublicPhotosGalleryParameters(item: item)
-                            appNavigationState.publicPhotosGalleryView(parameters: parameters)
-                        case .carouselDisplay:
-                            let parameters = PublicPhotosCarouselParameters(item: item)
-                            appNavigationState.publicPhotosCarouselView(parameters: parameters)
-                        case .listDisplay:
-                            let parameters = PublicPhotosListParameters(item: item)
-                            appNavigationState.publicPhotosListView(parameters: parameters)
+                        if let userAccessIds = item.userAccessIds, userAccessIds.contains(userId) {
+                            switch settingsService.puplicPhotoDisplay {
+                            case .automaticDisplay:
+                                selectedItem = item
+                                showingPublicAutoView = true
+                            case .galleryDisplay:
+                                let parameters = PublicPhotosGalleryParameters(item: item)
+                                appNavigationState.publicPhotosGalleryView(parameters: parameters)
+                            case .carouselDisplay:
+                                let parameters = PublicPhotosCarouselParameters(item: item)
+                                appNavigationState.publicPhotosCarouselView(parameters: parameters)
+                            case .listDisplay:
+                                let parameters = PublicPhotosListParameters(item: item)
+                                appNavigationState.publicPhotosListView(parameters: parameters)
+                            }
+                        } else {
+                            showingNoAccessToFolder = true
                         }
                     }
                     .swipeActions(allowsFullSwipe: false) {
@@ -136,6 +146,16 @@ struct PublicFoldersView: View {
                     }
                 }
             }
+            .onAppear {
+                if firstTime == true {
+                    firstTime = false
+                    if let userId = firebaseService.getUserId() {
+                        self.userId = userId
+                    } else {
+                        fatalError("User Id not found")
+                    }
+                }
+            }
             .navigationDestination(for: PublicPhotosNavDestination.self) { state in
                 switch state {
                 case .publicPhotosListView(let parameters):
@@ -153,6 +173,23 @@ struct PublicFoldersView: View {
             .fullScreenCover(isPresented: $showingPublicAutoView) {
                 let parameters = PublicPhotosTabCarouselParameters(item: selectedItem)
                 PublicTabCarouselView(parameters: parameters)
+            }
+            .alert("You do not have access to this folder. Enter a name and a message will be sent to the owner to request access. You will be notified when access is granted.", isPresented: $showingNoAccessToFolder) {
+                TextField("", text: $noAccessUserName)
+                    .keyboardType(.default)
+                Button("OK") {
+                    if noAccessUserName.isEmpty == true {
+                        showingNameEmptyAlert = true
+                        forNoAccessUserName = true
+                        return
+                    }
+                    Task {
+
+                    }
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Enter a name")
             }
             .alert("Name of Public Folder", isPresented: $showingGetNameAlert) {
                 TextField("", text: $newFolderName)
@@ -176,7 +213,12 @@ struct PublicFoldersView: View {
             }
             .alert("You need to add a name", isPresented: $showingNameEmptyAlert) {
                 Button("Cancel", role: .cancel) {
-                    showingGetNameAlert = true
+                    if forNoAccessUserName == true {
+                        forNoAccessUserName = false
+                        showingNoAccessToFolder = true
+                    } else {
+                        showingGetNameAlert = true
+                    }
                 }
             }
             .alert(errorString, isPresented: $showingErrorAlert) {

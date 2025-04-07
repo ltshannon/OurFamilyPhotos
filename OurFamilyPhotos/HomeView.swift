@@ -9,6 +9,8 @@ import SwiftUI
 import Photos
 
 struct HomeView: View {
+    @EnvironmentObject var userAuth: Authentication
+    @EnvironmentObject var firebaseService: FirebaseService
     @State private var firstTime = true
     
     var body: some View {
@@ -57,6 +59,13 @@ struct HomeView: View {
                     debugPrint("Unknown authorization status.")
                 }
                 firstTime = false
+            }
+        }
+        .onReceive(userAuth.$fcmToken) { token in
+            if token.isNotEmpty {
+                Task {
+                    await firebaseService.updateAddFCMToUser(token: userAuth.fcmToken)
+                }
             }
         }
     }

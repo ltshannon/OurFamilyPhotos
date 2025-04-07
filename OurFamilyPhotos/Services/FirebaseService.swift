@@ -21,6 +21,7 @@ class FirebaseService: ObservableObject {
     @Published var publicFolderInfos: [PublicFolderInfo] = []
     var photosListener: ListenerRegistration?
     var publicFoldersListener: ListenerRegistration?
+    var fmc: String = ""
 
 
     let database = Firestore.firestore()
@@ -300,6 +301,29 @@ class FirebaseService: ObservableObject {
         }
 
         return nil
+    }
+    
+    func getUserId() -> String? {
+        guard let user = Auth.auth().currentUser else {
+            return nil
+        }
+        return user.uid
+    }
+    
+    func updateAddFCMToUser(token: String) async {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        
+        self.fmc = token
+        
+        let values = [
+                        "fcm" : token,
+                     ]
+        do {
+            try await database.collection("profiles").document(currentUid).updateData(values)
+        } catch {
+            debugPrint("🧨", "updateAddFCMToUser: \(error)")
+        }
+        
     }
     
 }

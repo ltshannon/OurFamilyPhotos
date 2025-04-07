@@ -12,6 +12,8 @@
 		B12744FB2D9CB3B90070A4D0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B12744FA2D9CB3B90070A4D0 /* FirebaseFirestore */; };
 		B12744FD2D9CB3B90070A4D0 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B12744FC2D9CB3B90070A4D0 /* FirebaseStorage */; };
 		B127452E2D9CC4080070A4D0 /* FirebaseSignInWithApple in Frameworks */ = {isa = PBXBuildFile; productRef = B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */; };
+		B1C198E72DA0B20900E235EF /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B1C198E62DA0B20900E235EF /* FirebaseMessaging */; };
+		B1C198E92DA0B22400E235EF /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = B1C198E82DA0B22400E235EF /* FirebaseFunctions */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +46,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B1C198E72DA0B20900E235EF /* FirebaseMessaging in Frameworks */,
+				B1C198E92DA0B22400E235EF /* FirebaseFunctions in Frameworks */,
 				B12744F72D9CB3B90070A4D0 /* FirebaseAnalytics in Frameworks */,
 				B12744FD2D9CB3B90070A4D0 /* FirebaseStorage in Frameworks */,
 				B12744F92D9CB3B90070A4D0 /* FirebaseAuth in Frameworks */,
@@ -59,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				B12744E42D9CB12F0070A4D0 /* OurFamilyPhotos */,
+				B1C198E52DA0B20900E235EF /* Frameworks */,
 				B12744E32D9CB12F0070A4D0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -69,6 +74,13 @@
 				B12744E22D9CB12F0070A4D0 /* OurFamilyPhotos.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B1C198E52DA0B20900E235EF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -96,6 +108,8 @@
 				B12744FA2D9CB3B90070A4D0 /* FirebaseFirestore */,
 				B12744FC2D9CB3B90070A4D0 /* FirebaseStorage */,
 				B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */,
+				B1C198E62DA0B20900E235EF /* FirebaseMessaging */,
+				B1C198E82DA0B22400E235EF /* FirebaseFunctions */,
 			);
 			productName = OurFamilyPhotos;
 			productReference = B12744E22D9CB12F0070A4D0 /* OurFamilyPhotos.app */;
@@ -292,6 +306,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OurFamilyPhotos/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to share photos with your family";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -325,6 +340,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OurFamilyPhotos/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to share photos with your family";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -410,6 +426,16 @@
 		B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseSignInWithApple;
+		};
+		B1C198E62DA0B20900E235EF /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		B1C198E82DA0B22400E235EF /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -11,6 +11,7 @@ import PDFKit
 
 struct DetailsPhotosView: View {
     @EnvironmentObject var firebaseService: FirebaseService
+    var externalDataService = ExternalDataService.shared
     var item: PhotoInfo
     
     init(parameters: PhotosDetailParameters) {
@@ -23,7 +24,7 @@ struct DetailsPhotosView: View {
             VStack {
                 if (item.uploadFileType == nil || item.uploadFileType == .images), let url = item.imageURL {
                     AsyncImage(url: url) { phase in
-                        if let image = phase.image {
+                        if let image = phase.image, externalDataService.updateImage(image: image) {
                             image
                                 .resizable()
                         } else if phase.error != nil {

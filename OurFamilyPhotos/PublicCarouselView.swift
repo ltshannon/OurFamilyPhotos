@@ -11,6 +11,7 @@ import PDFKit
 
 struct PublicCarouselView: View {
     @EnvironmentObject var firebaseService: FirebaseService
+    var externalDataService = ExternalDataService.shared
     var publicFolder: PublicFolderInfo
     @State var photoInfos: [PhotoInfo] = []
     @State private var scrollID: Int?
@@ -28,17 +29,23 @@ struct PublicCarouselView: View {
                             let sampleImage = photoInfos[index]
                             VStack {
                                 if (sampleImage.uploadFileType == nil || sampleImage.uploadFileType == .images), let url = sampleImage.imageURL {
-                                    AsyncImage(url: url) { image in
-                                        image
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(maxWidth: .infinity)
-                                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                                            .shadow(radius: 10)
-                                            .padding()
-                                    } placeholder: {
-                                        ProgressView()
+                                    AsyncImage(url: url) { phase in
+                                        if let image = phase.image, externalDataService.updateImage(image: image) {
+                                            image
+                                                .resizable()
+                                        } else if phase.error != nil {
+                                            Color.red
+                                        } else {
+                                            Image(systemName: "photo")
+                                                .resizable()
+                                        }
                                     }
+                                    .scaledToFit()
+                                    .frame(maxWidth: .infinity)
+                                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                                    .shadow(radius: 10)
+                                    .padding()
+                                    
                                 } else if sampleImage.uploadFileType == .videos, let url = sampleImage.imageURL  {
                                     VideoPlayer(player: AVPlayer(url: url))
                                         .scaledToFit()
