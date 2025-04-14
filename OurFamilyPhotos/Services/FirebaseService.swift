@@ -150,7 +150,7 @@ class FirebaseService: ObservableObject {
                     let data = try document.data(as: AccessRequest.self)
                     results.append(data)
                 }
-                
+                results.sort { $0.date > $1.date }
                 self.accessRequests = results
             }
             catch {
