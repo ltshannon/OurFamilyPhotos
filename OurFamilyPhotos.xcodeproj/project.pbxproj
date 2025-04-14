@@ -12,6 +12,9 @@
 		B12744FB2D9CB3B90070A4D0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B12744FA2D9CB3B90070A4D0 /* FirebaseFirestore */; };
 		B12744FD2D9CB3B90070A4D0 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B12744FC2D9CB3B90070A4D0 /* FirebaseStorage */; };
 		B127452E2D9CC4080070A4D0 /* FirebaseSignInWithApple in Frameworks */ = {isa = PBXBuildFile; productRef = B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */; };
+		B12B19022DA37207009C1F40 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B12B19012DA37207009C1F40 /* FirebaseMessaging */; };
+		B12B19042DA45836009C1F40 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = B12B19032DA45836009C1F40 /* FirebaseFunctions */; };
+		B12B19062DA45836009C1F40 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = B12B19052DA45836009C1F40 /* FirebaseInAppMessaging-Beta */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,7 +47,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B12B19022DA37207009C1F40 /* FirebaseMessaging in Frameworks */,
+				B12B19042DA45836009C1F40 /* FirebaseFunctions in Frameworks */,
 				B12744F72D9CB3B90070A4D0 /* FirebaseAnalytics in Frameworks */,
+				B12B19062DA45836009C1F40 /* FirebaseInAppMessaging-Beta in Frameworks */,
 				B12744FD2D9CB3B90070A4D0 /* FirebaseStorage in Frameworks */,
 				B12744F92D9CB3B90070A4D0 /* FirebaseAuth in Frameworks */,
 				B12744FB2D9CB3B90070A4D0 /* FirebaseFirestore in Frameworks */,
@@ -59,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				B12744E42D9CB12F0070A4D0 /* OurFamilyPhotos */,
+				B12B19002DA37207009C1F40 /* Frameworks */,
 				B12744E32D9CB12F0070A4D0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -69,6 +76,13 @@
 				B12744E22D9CB12F0070A4D0 /* OurFamilyPhotos.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B12B19002DA37207009C1F40 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -96,6 +110,9 @@
 				B12744FA2D9CB3B90070A4D0 /* FirebaseFirestore */,
 				B12744FC2D9CB3B90070A4D0 /* FirebaseStorage */,
 				B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */,
+				B12B19012DA37207009C1F40 /* FirebaseMessaging */,
+				B12B19032DA45836009C1F40 /* FirebaseFunctions */,
+				B12B19052DA45836009C1F40 /* FirebaseInAppMessaging-Beta */,
 			);
 			productName = OurFamilyPhotos;
 			productReference = B12744E22D9CB12F0070A4D0 /* OurFamilyPhotos.app */;
@@ -286,7 +303,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = OurFamilyPhotos/OurFamilyPhotos.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"OurFamilyPhotos/Preview Content\"";
 				DEVELOPMENT_TEAM = DDDAQ32TPA;
 				ENABLE_PREVIEWS = YES;
@@ -300,7 +317,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.03;
+				MARKETING_VERSION = 1.04;
 				PRODUCT_BUNDLE_IDENTIFIER = com.breakawaydesign.MyFamilyPhotos;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -319,7 +336,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = OurFamilyPhotos/OurFamilyPhotos.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"OurFamilyPhotos/Preview Content\"";
 				DEVELOPMENT_TEAM = DDDAQ32TPA;
 				ENABLE_PREVIEWS = YES;
@@ -333,7 +350,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.03;
+				MARKETING_VERSION = 1.04;
 				PRODUCT_BUNDLE_IDENTIFIER = com.breakawaydesign.MyFamilyPhotos;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -410,6 +427,21 @@
 		B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseSignInWithApple;
+		};
+		B12B19012DA37207009C1F40 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		B12B19032DA45836009C1F40 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		B12B19052DA45836009C1F40 /* FirebaseInAppMessaging-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseInAppMessaging-Beta";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

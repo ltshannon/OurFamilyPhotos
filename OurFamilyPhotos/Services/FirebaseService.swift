@@ -72,14 +72,14 @@ class FirebaseService: ObservableObject {
                 
                 var folders: [PhotoInfo] = []
                 for folderItem in folderSet {
-                    let items = results.filter { $0.userfolder == folderItem && $0.isFolder == false }
+                    var items = results.filter { $0.userfolder == folderItem && $0.isFolder == false }
                     if var realFolder = results.filter({ $0.isFolder == true && $0.userfolder == folderItem}).first {
+                        items.sort { $0.description < $1.description }
                         realFolder.items = items
                         folders.append(realFolder)
                         folders.sort(by: { $0.userfolder < $1.userfolder })
                     }
                 }
-
                 self.items = folders
                 debugPrint("count: \(results.count)")
             }
@@ -150,6 +150,7 @@ class FirebaseService: ObservableObject {
             debugPrint("Error PublicFoldersDetailView:getPublicFolders: \(error)")
         }
 
+        results.sort { $0.description < $1.description }
         return results
     }
     

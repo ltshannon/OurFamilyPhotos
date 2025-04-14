@@ -77,6 +77,12 @@ struct SelectPhotoView: View {
                     var images: [UIImage?] = []
                     var imagesData: [Data?] = []
                     for selectedPhoto in selectedPhotos {
+//                        if let localID = selectedPhoto.itemIdentifier {
+//                            let result = PHAsset.fetchAssets(withLocalIdentifiers: [localID], options: nil)
+//                            if let asset = result.firstObject {
+//                                debugPrint("🤥", asset.debugDescription)
+//                            }
+//                        }
                         let data = try? await selectedPhoto.loadTransferable(type: Data.self)
                         if data != nil {
                             var image: UIImage?
@@ -94,6 +100,7 @@ struct SelectPhotoView: View {
                             imagesData.append(nil)
                             images.append(nil)
                         }
+
                     }
                     
                     self.images = images.compactMap { $0 }
