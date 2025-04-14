@@ -7,6 +7,11 @@
 
 import Foundation
 
+struct PublicFolderManageUsersParameters: Identifiable, Hashable, Encodable {
+    var id = UUID().uuidString
+    var item: PublicFolderInfo
+}
+
 struct PhotosDetailParameters: Identifiable, Hashable, Encodable {
     var id = UUID().uuidString
     var item: PhotoInfo
@@ -47,6 +52,7 @@ enum PublicPhotosNavDestination: Hashable {
     case publicPhotosCarouselView(PublicPhotosCarouselParameters)
     case publicPhotosTabCarouselView(PublicPhotosTabCarouselParameters)
     case publicPhotosDetailView(PhotosDetailParameters)
+    case publicFolderManageUsersView(PublicFolderManageUsersParameters)
 }
 
 class AppNavigationState: ObservableObject {
@@ -75,5 +81,9 @@ class AppNavigationState: ObservableObject {
     
     func publicPhotosGalleryView(parameters: PublicPhotosGalleryParameters) {
         photosPublicNavigation.append(PublicPhotosNavDestination.publicPhotosGalleryView(parameters))
+    }
+    
+    func publicFolderManageUsersView(parameters: PublicFolderManageUsersParameters) {
+        photosPublicNavigation.append(PublicPhotosNavDestination.publicFolderManageUsersView(parameters))
     }
 }

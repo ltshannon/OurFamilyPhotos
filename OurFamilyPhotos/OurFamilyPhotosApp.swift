@@ -13,6 +13,7 @@ struct OurFamilyPhotosApp: App {
     @StateObject var appNavigationState = AppNavigationState()
     @StateObject var firebaseService = FirebaseService.shared
     @StateObject var settingsService = SettingsService.shared
+    @StateObject var userAuth = Authentication.shared
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
@@ -21,6 +22,7 @@ struct OurFamilyPhotosApp: App {
                 .environmentObject(appNavigationState)
                 .environmentObject(firebaseService)
                 .environmentObject(settingsService)
+                .environmentObject(userAuth)
                 .configureFirebaseSignInWithAppleWith(firestoreUserCollectionPath: Path.Firestore.profiles)
         }
     }

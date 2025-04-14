@@ -10,6 +10,14 @@ import Firebase
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
+import FirebaseFunctions
+
+struct UserInfo: Codable, Identifiable, Equatable, Hashable {
+    @DocumentID var id: String?
+    var userId: String?
+    var fcm: String?
+    var userName: String?
+}
 
 class FirebaseService: ObservableObject {
     static let shared = FirebaseService()
@@ -19,15 +27,22 @@ class FirebaseService: ObservableObject {
     @Published var items: [PhotoInfo] = []
     @Published var userFolderNames: [String] = []
     @Published var publicFolderInfos: [PublicFolderInfo] = []
+    @Published var accessRequests: [AccessRequest] = []
+    @Published var userInfos: [UserInfo] = []
+    @Published var userId: String = ""
+    @Published var userName: String = ""
     var photosListener: ListenerRegistration?
     var publicFoldersListener: ListenerRegistration?
-
-
+    var accessRequestsListener: ListenerRegistration?
+    var userInfosListener: ListenerRegistration?
+    var fcm: String = ""
+    
+    
     let database = Firestore.firestore()
     
     @MainActor
     func listenerForUserPhotos() async {
-
+        
         guard let user = Auth.auth().currentUser else {
             return
         }
@@ -52,7 +67,7 @@ class FirebaseService: ObservableObject {
         } catch {
             fatalError("Folder image not found")
         }
-
+        
         let listener = database.collection("allPhotos").whereField("userId", isEqualTo: user.uid).addSnapshotListener({ querySnapshot, error in
             guard let documents = querySnapshot?.documents else {
                 debugPrint("🧨", "Error listenerForUserPhotos: \(error!)")
@@ -80,22 +95,23 @@ class FirebaseService: ObservableObject {
                         folders.sort(by: { $0.userfolder < $1.userfolder })
                     }
                 }
+
                 self.items = folders
                 debugPrint("count: \(results.count)")
             }
             catch {
                 debugPrint("🧨", "Error reading listenerForUserPhotos: \(error.localizedDescription)")
             }
-
+            
         })
-
+        
         self.photosListener = listener
-
+        
     }
     
     @MainActor
     func listenerForPublicFolders() async {
-
+        
         let listener = database.collection("publicFolders").addSnapshotListener({ querySnapshot, error in
             guard let documents = querySnapshot?.documents else {
                 debugPrint("🧨", "Error listenerForPublicPhotoInfos: \(error!)")
@@ -113,26 +129,65 @@ class FirebaseService: ObservableObject {
             catch {
                 debugPrint("🧨", "Error reading listenerForPublicFolders: \(error.localizedDescription)")
             }
-
+            
         })
-
+        
         self.publicFoldersListener = listener
         
-//        func getCount(name: String) -> Int {
-//            var count: Int = 0
-//            let query = database.collection("allPhotos").whereField("publicFolders", arrayContains: "Family")
-//            let countQuery = query.count
-//            do {
-//                let snapshot = try countQuery.
-//                //countQuery.getAggregation(source: .server)
-//                debugPrint(snapshot.count)
-//                count = Int(String("\(snapshot.count)")) ?? 0
-//            } catch {
-//                debugPrint(error)
-//            }
-//            return count
-//        }
-
+    }
+    
+    @MainActor
+    func listenerForAccessRequests() async {
+        
+        let listener = database.collection("accessRequests").addSnapshotListener({ querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {
+                debugPrint("🧨", "Error listenerForAccessRequests: \(error!)")
+                return
+            }
+            var results: [AccessRequest] = []
+            do {
+                for document in documents {
+                    let data = try document.data(as: AccessRequest.self)
+                    results.append(data)
+                }
+                
+                self.accessRequests = results
+            }
+            catch {
+                debugPrint("🧨", "Error reading listenerForAccessRequests: \(error.localizedDescription)")
+            }
+            
+        })
+        
+        self.accessRequestsListener = listener
+        
+    }
+    
+    @MainActor
+    func listenerForUsers() async {
+        
+        let listener = database.collection("profiles").addSnapshotListener({ querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {
+                debugPrint("🧨", "Error listenerForUsers: \(error!)")
+                return
+            }
+            var results: [UserInfo] = []
+            do {
+                for document in documents {
+                    let data = try document.data(as: UserInfo.self)
+                    results.append(data)
+                }
+                
+                self.userInfos = results
+            }
+            catch {
+                debugPrint("🧨", "Error reading listenerForUsers: \(error.localizedDescription)")
+            }
+            
+        })
+        
+        self.userInfosListener = listener
+        
     }
     
     func getPhotosForPublicFolder(name: String) async -> [PhotoInfo] {
@@ -172,7 +227,7 @@ class FirebaseService: ObservableObject {
             }
             try await database.collection("publicFolders").document(item.name).delete()
         } catch {
-            debugPrint(error)
+            debugPrint("🧨", "Error deleteFolder: \(error)")
         }
         
     }
@@ -278,8 +333,9 @@ class FirebaseService: ObservableObject {
             }
             do {
                 try await database.collection(folderName).document(name).setData([
-                    "name": name,
-                    "ownerId": user.uid,
+                    "name"          : name,
+                    "ownerId"       : user.uid,
+                    "userAccessIds" : [user.uid]
                 ])
             } catch {
                 debugPrint("Error creating public folder with name: \(name) error: \(error)")
@@ -301,6 +357,129 @@ class FirebaseService: ObservableObject {
         }
 
         return nil
+    }
+    
+    @MainActor
+    func getUserId() async {
+        guard let user = Auth.auth().currentUser else {
+            fatalError("No user signed in")
+        }
+        self.userId = user.uid
+    }
+    
+    func updateAddFCMToUser(token: String) async {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        
+        self.fcm = token
+        
+        let values = [
+                        "fcm" : token,
+                     ]
+        do {
+            try await database.collection("profiles").document(currentUid).updateData(values)
+        } catch {
+            debugPrint("🧨", "updateAddFCMToUser: \(error)")
+        }
+        
+    }
+    
+    func updateStateAccessRequest(docId: String, state: AccessRequestType, message: String, name: String) async {
+        let values = [
+                        "assignedName" : name,
+                        "state" : state.rawValue,
+                        "message" : message,
+                     ]
+        do {
+            try await database.collection("accessRequests").document(docId).updateData(values)
+        } catch {
+            debugPrint("🧨", "updateStateAccessRequest: \(error)")
+        }
+    }
+    
+    func addAccessRequest(folderName: String, ownerId: String, message: String, state: AccessRequestType) async {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        
+        let values: [String: Any] = [
+                        "date"       : FieldValue.serverTimestamp(),
+                        "assignedName": self.userName,
+                        "folderName" : folderName,
+                        "ownerId"    : ownerId,
+                        "userId"     : currentUid,
+                        "message"    : message,
+                        "state"       : state.rawValue,
+                    ]
+        do {
+            let docRef = database.collection("accessRequests").document()
+            try await docRef.setData(values)
+        } catch {
+            debugPrint("🧨", "addAccessRequest: \(error)")
+        }
+        
+    }
+    
+    func updateAccessForPublicFolder(folderName: String, userId: String) async {
+        
+        do {
+            try await database.collection("publicFolders").document(folderName).updateData(["userAccessIds": FieldValue.arrayUnion([userId])])
+        } catch {
+            debugPrint("🧨", "updateAccessForPublicFolder: \(error)")
+        }
+    }
+    
+    func updateUserName(name: String) async {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        
+        do {
+            let reference = database.collection("profiles").document(currentUid)
+            try await reference.updateData(["userName": name])
+            await MainActor.run {
+                self.userName = name
+            }
+        } catch {
+            debugPrint("🧨", "updateUserName: \(error)")
+        }
+    }
+    
+    @MainActor
+    func getUserName() async {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        
+        do {
+            let query = try await database.collection("profiles").whereField("userId", isEqualTo: currentUid).getDocuments()
+            guard query.documents.count == 1 else {
+                return
+            }
+            for document in query.documents {
+                let data = try document.data(as: UserInfo.self)
+                if let userName = data.userName {
+                    self.userName = userName
+                }
+            }
+
+        } catch {
+            debugPrint("🧨", "Error getUserName: \(error)")
+        }
+        return
+    }
+    
+    func callFirebaseCallableFunction(fcm: String, title: String, body: String, silent: Bool) async {
+        lazy var functions = Functions.functions()
+        
+        let payload: [String : Any] = [
+                        "silent": silent,
+                        "fcm": fcm,
+                        "title": title,
+                        "body": body
+                      ]
+        functions.httpsCallable("sendNotification").call(payload) { result, error in
+            if let error = error as NSError? {
+                debugPrint(String.boom, error.localizedDescription)
+            }
+            if let data = result?.data {
+                debugPrint("result: \(data)")
+            }
+            
+        }
     }
     
 }

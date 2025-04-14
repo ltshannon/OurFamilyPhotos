@@ -14,4 +14,5 @@ struct PublicFolderInfo: Codable, Identifiable, Equatable, Hashable {
     var name: String = ""
     var count: Int?
     var ownerId: String
+    var userAccessIds: [String]
 }

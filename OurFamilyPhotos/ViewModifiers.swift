@@ -10,13 +10,13 @@ import SwiftUI
 struct DefaultTextButton: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .font(.headline)
-            .foregroundColor(.white)
-            .frame(height: 55)
-            .frame(maxWidth: .infinity)
-            .background(Color.blue)
-            .cornerRadius(10)
-            .padding([.leading, .trailing])
+            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 44.0, alignment: .leading)
+            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+            .padding(.leading, 20)
+            .foregroundColor(.black)
+            .background(.white)
+            .cornerRadius(9)
     }
 }
 

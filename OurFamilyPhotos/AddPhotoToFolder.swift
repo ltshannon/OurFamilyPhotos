@@ -16,7 +16,7 @@ struct AddPhotoToFolder: View {
     @Environment(\.dismiss) var dismiss
     var item: PhotoInfo
     var isPublic: Bool
-    @State var selectedItem: PublicFolderInfo = PublicFolderInfo(name: "", ownerId: "")
+    @State var selectedItem: PublicFolderInfo = PublicFolderInfo(name: "", ownerId: "", userAccessIds: [])
     @State var showingAddPhotoToPublicFolderAlert: Bool = false
     @State var showingRemovingPhotoToPublicFolderAlert: Bool = false
     @State var showingErrorStringAlert = false

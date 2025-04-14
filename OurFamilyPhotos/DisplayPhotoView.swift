@@ -167,6 +167,9 @@ struct DisplayPhotoView: View {
                 Task {
                     await firebaseService.listenerForUserPhotos()
                     await firebaseService.listenerForPublicFolders()
+                    await firebaseService.listenerForAccessRequests()
+                    await firebaseService.getUserId()
+                    await firebaseService.listenerForUsers()
                     firstTime = false
                 }
             }
