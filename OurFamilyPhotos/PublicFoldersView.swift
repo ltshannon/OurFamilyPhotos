@@ -15,7 +15,7 @@ struct PublicFoldersView: View {
     @EnvironmentObject var appNavigationState: AppNavigationState
     @EnvironmentObject var firebaseService: FirebaseService
     @EnvironmentObject var settingsService: SettingsService
-    @State var selectedItem: PublicFolderInfo = PublicFolderInfo(name: "", ownerId: "")
+    @State var selectedItem: PublicFolderInfo = PublicFolderInfo(name: "", ownerId: "", userAccessIds: [])
     @State var showingGetNameAlert = false
     @State var showingNameEmptyAlert = false
     @State var showingErrorAlert: Bool = false
@@ -24,7 +24,7 @@ struct PublicFoldersView: View {
     @State var showingPublicAutoView = false
     @State var showingNoAccessToFolder = false
     @State var newFolderName: String = ""
-    @State var noAccessUserName: String = ""
+    @State var noAccessMessage: String = ""
     @State var forNoAccessUserName = false
     @State var errorString: String = ""
     @State var newName = ""
@@ -43,10 +43,10 @@ struct PublicFoldersView: View {
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        if let userAccessIds = item.userAccessIds, userAccessIds.contains(userId) {
+                        selectedItem = item
+                        if item.userAccessIds.contains(userId) {
                             switch settingsService.puplicPhotoDisplay {
                             case .automaticDisplay:
-                                selectedItem = item
                                 showingPublicAutoView = true
                             case .galleryDisplay:
                                 let parameters = PublicPhotosGalleryParameters(item: item)
@@ -64,18 +64,25 @@ struct PublicFoldersView: View {
                     }
                     .swipeActions(allowsFullSwipe: false) {
                         if item.ownerId == Auth.auth().currentUser!.uid {
-                            Button(role: .destructive) {
-                                selectedItem = item
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash.fill")
-                            }
                             Button {
                                 selectedItem = item
                                 newName = item.name
                                 showingEditDescriptionAlert = true
                             } label: {
-                                Text("Edit Description")
+                                Text("Edit")
+                            }
+                            .tint(.indigo)
+                            Button {
+                                let parameters = PublicFolderManageUsersParameters(item: item)
+                                appNavigationState.publicFolderManageUsersView(parameters: parameters)
+                            } label: {
+                                Text("Manage Users")
+                            }
+                            Button(role: .destructive) {
+                                selectedItem = item
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash.fill")
                             }
                         }
                     }
@@ -149,11 +156,7 @@ struct PublicFoldersView: View {
             .onAppear {
                 if firstTime == true {
                     firstTime = false
-                    if let userId = firebaseService.getUserId() {
-                        self.userId = userId
-                    } else {
-                        fatalError("User Id not found")
-                    }
+                    self.userId = firebaseService.userId
                 }
             }
             .navigationDestination(for: PublicPhotosNavDestination.self) { state in
@@ -168,23 +171,34 @@ struct PublicFoldersView: View {
                     PublicTabCarouselView(parameters: parameters)
                 case .publicPhotosDetailView(let parameters):
                     DetailsPhotosView(parameters: parameters)
+                case .publicFolderManageUsersView(let parameters):
+                    PublicFolderManageUsersView(parameters: parameters)
                 }
             }
             .fullScreenCover(isPresented: $showingPublicAutoView) {
                 let parameters = PublicPhotosTabCarouselParameters(item: selectedItem)
                 PublicTabCarouselView(parameters: parameters)
             }
-            .alert("You do not have access to this folder. Enter a name and a message will be sent to the owner to request access. You will be notified when access is granted.", isPresented: $showingNoAccessToFolder) {
-                TextField("", text: $noAccessUserName)
+            .alert("You do not have access to this folder. Enter a message to why you would like access. A request will be sent to the owner, who will grant you access or not. You will be notified either way.", isPresented: $showingNoAccessToFolder) {
+                TextField("", text: $noAccessMessage)
                     .keyboardType(.default)
                 Button("OK") {
-                    if noAccessUserName.isEmpty == true {
+                    if noAccessMessage.isEmpty == true {
                         showingNameEmptyAlert = true
                         forNoAccessUserName = true
                         return
                     }
                     Task {
-
+                        await firebaseService.addAccessRequest(folderName: selectedItem.name, ownerId: selectedItem.ownerId, message: noAccessMessage, state: AccessRequestType.waiting)
+                        let userInfos = firebaseService.userInfos
+                        let userInfo = userInfos.filter { $0.userId ?? "" == selectedItem.ownerId }.first
+                        if let fcm = userInfo?.fcm {
+                            let myName = firebaseService.userName
+                            let title = "Someone wants to access"
+                            let message = "\(myName) wants access to your public folder: \(selectedItem.name)\nReason: \(noAccessMessage)"
+                            await firebaseService.callFirebaseCallableFunction(fcm: fcm, title: title, body: message, silent: false)
+                        }
+                        noAccessMessage = ""
                     }
                 }
                 Button("Cancel", role: .cancel) { }

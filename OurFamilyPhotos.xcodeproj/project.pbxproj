@@ -12,8 +12,9 @@
 		B12744FB2D9CB3B90070A4D0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B12744FA2D9CB3B90070A4D0 /* FirebaseFirestore */; };
 		B12744FD2D9CB3B90070A4D0 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B12744FC2D9CB3B90070A4D0 /* FirebaseStorage */; };
 		B127452E2D9CC4080070A4D0 /* FirebaseSignInWithApple in Frameworks */ = {isa = PBXBuildFile; productRef = B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */; };
-		B1C198E72DA0B20900E235EF /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B1C198E62DA0B20900E235EF /* FirebaseMessaging */; };
-		B1C198E92DA0B22400E235EF /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = B1C198E82DA0B22400E235EF /* FirebaseFunctions */; };
+		B12B19022DA37207009C1F40 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B12B19012DA37207009C1F40 /* FirebaseMessaging */; };
+		B12B19042DA45836009C1F40 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = B12B19032DA45836009C1F40 /* FirebaseFunctions */; };
+		B12B19062DA45836009C1F40 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = B12B19052DA45836009C1F40 /* FirebaseInAppMessaging-Beta */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,9 +47,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1C198E72DA0B20900E235EF /* FirebaseMessaging in Frameworks */,
-				B1C198E92DA0B22400E235EF /* FirebaseFunctions in Frameworks */,
+				B12B19022DA37207009C1F40 /* FirebaseMessaging in Frameworks */,
+				B12B19042DA45836009C1F40 /* FirebaseFunctions in Frameworks */,
 				B12744F72D9CB3B90070A4D0 /* FirebaseAnalytics in Frameworks */,
+				B12B19062DA45836009C1F40 /* FirebaseInAppMessaging-Beta in Frameworks */,
 				B12744FD2D9CB3B90070A4D0 /* FirebaseStorage in Frameworks */,
 				B12744F92D9CB3B90070A4D0 /* FirebaseAuth in Frameworks */,
 				B12744FB2D9CB3B90070A4D0 /* FirebaseFirestore in Frameworks */,
@@ -63,7 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				B12744E42D9CB12F0070A4D0 /* OurFamilyPhotos */,
-				B1C198E52DA0B20900E235EF /* Frameworks */,
+				B12B19002DA37207009C1F40 /* Frameworks */,
 				B12744E32D9CB12F0070A4D0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -76,7 +78,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B1C198E52DA0B20900E235EF /* Frameworks */ = {
+		B12B19002DA37207009C1F40 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -108,8 +110,9 @@
 				B12744FA2D9CB3B90070A4D0 /* FirebaseFirestore */,
 				B12744FC2D9CB3B90070A4D0 /* FirebaseStorage */,
 				B127452D2D9CC4080070A4D0 /* FirebaseSignInWithApple */,
-				B1C198E62DA0B20900E235EF /* FirebaseMessaging */,
-				B1C198E82DA0B22400E235EF /* FirebaseFunctions */,
+				B12B19012DA37207009C1F40 /* FirebaseMessaging */,
+				B12B19032DA45836009C1F40 /* FirebaseFunctions */,
+				B12B19052DA45836009C1F40 /* FirebaseInAppMessaging-Beta */,
 			);
 			productName = OurFamilyPhotos;
 			productReference = B12744E22D9CB12F0070A4D0 /* OurFamilyPhotos.app */;
@@ -306,7 +309,6 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OurFamilyPhotos/Info.plist;
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to share photos with your family";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -340,7 +342,6 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OurFamilyPhotos/Info.plist;
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to share photos with your family";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -427,15 +428,20 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseSignInWithApple;
 		};
-		B1C198E62DA0B20900E235EF /* FirebaseMessaging */ = {
+		B12B19012DA37207009C1F40 /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
-		B1C198E82DA0B22400E235EF /* FirebaseFunctions */ = {
+		B12B19032DA45836009C1F40 /* FirebaseFunctions */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFunctions;
+		};
+		B12B19052DA45836009C1F40 /* FirebaseInAppMessaging-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B12744F52D9CB3B90070A4D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseInAppMessaging-Beta";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

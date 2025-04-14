@@ -9,12 +9,14 @@ import SwiftUI
 import Photos
 
 struct HomeView: View {
+    @EnvironmentObject var appNavigationState: AppNavigationState
     @EnvironmentObject var userAuth: Authentication
     @EnvironmentObject var firebaseService: FirebaseService
     @State private var firstTime = true
+    @State private var showingFullScreenCover = false
     
     var body: some View {
-        TabView {
+        TabView(selection: $userAuth.tabSelection) {
             DisplayPhotoView()
                 .tabItem {
                     Label("Photos", systemImage: "photo")
@@ -25,16 +27,21 @@ struct HomeView: View {
                     Label("Public Photos", systemImage: "folder")
                 }
                 .tag(2)
+            AccessRequestsView()
+                .tabItem {
+                    Label("Access Requests", systemImage: "lock.shield")
+                }
+                .tag(3)
             SelectPhotoView()
                 .tabItem {
                     Label("Upload", systemImage: "square.and.arrow.up")
                 }
-                .tag(3)
+                .tag(4)
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
-                .tag(4)
+                .tag(5)
         }
         .onAppear {
             if firstTime {
@@ -58,8 +65,17 @@ struct HomeView: View {
                 @unknown default:
                     debugPrint("Unknown authorization status.")
                 }
+                Task {
+                    await firebaseService.getUserName()
+                    if firebaseService.userName.isEmpty {
+                        showingFullScreenCover = true
+                    }
+                }
                 firstTime = false
             }
+        }
+        .fullScreenCover(isPresented: $showingFullScreenCover) {
+            GetUserNameView()
         }
         .onReceive(userAuth.$fcmToken) { token in
             if token.isNotEmpty {
@@ -68,5 +84,10 @@ struct HomeView: View {
                 }
             }
         }
+//        .onReceive(userAuth.$silent) { value in
+//            if value == true {
+//                showingFullScreenCover = true
+//            }
+//        }
     }
 }
