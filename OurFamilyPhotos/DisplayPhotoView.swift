@@ -22,21 +22,23 @@ struct DisplayPhotoView: View {
     @State var showingGetNameAlert = false
     @State var showingAddToPublicFolderSheet = false
     @State var showingNameEmptyAlert = false
-    @State var showingFolderExistsAlert: Bool = false
-    @State var showingFirstTimeAlert: Bool = false
+    @State var showingFolderExistsAlert = false
+    @State var showingFirstTimeAlert = false
+    @State var showingAddToFoldersSheet = false
     @State var newDescription = ""
     @State var newFolderName: String = ""
     @State var errorString: String = ""
     @State var selectedItem: PhotoInfo = PhotoInfo(id: "", userfolder: "", description: "", userId: "")
     @State var folderImageURL: URL?
+    @State var selectedFolder: PhotoInfo?
     @AppStorage("firstLaunch") var firstLaunch: Bool = true
     let database = Firestore.firestore()
     
     var body: some View {
         NavigationStack(path: $appNavigationState.photosNavigation) {
-            List(firebaseService.items, children: \.items) { item in
+            List(firebaseService.items, children: \.children) { item in
                 HStack {
-                    AsyncImage(url: item.items == nil ? item.thumbnailURL : (item.items!.count == 0 ? firebaseService.openFolderImageURL : firebaseService.folderImageURL))  { phase in
+                    AsyncImage(url: item.children == nil ? item.thumbnailURL : (item.children!.count == 0 ? firebaseService.openFolderImageURL : firebaseService.folderImageURL))  { phase in
                         if let image = phase.image {
                             image
                                 .resizable()
@@ -112,21 +114,22 @@ struct DisplayPhotoView: View {
             .fullScreenCover(isPresented: $showingAddToPublicFolderSheet) {
                 AddPhotoToFolder(item: selectedItem, isPublic: true)
             }
-            .alert("Name of Folder", isPresented: $showingGetNameAlert) {
+            .alert("Create A New Folder", isPresented: $showingGetNameAlert) {
                 TextField("", text: $newFolderName)
                     .keyboardType(.default)
-                Button("OK") {
+                Button("Place In Root") {
                     if newFolderName.isEmpty == true {
                         showingNameEmptyAlert = true
                         return
                     }
-                    Task {
-                        if let error = await firebaseService.createFolder(name: newFolderName, folderName: "usersFolders", isPublic: false) {
-                            errorString = error
-                            showingFolderExistsAlert = true
-                        }
-                        newFolderName = ""
+                    saveFolderName(parentId: nil)
+                }
+                Button("Place In Subfolder") {
+                    if newFolderName.isEmpty == true {
+                        showingNameEmptyAlert = true
+                        return
                     }
+                    showingAddToFoldersSheet = true
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
@@ -161,6 +164,9 @@ struct DisplayPhotoView: View {
             .alert("To get started use the '+' button in the top right corner to create your first folder to upload photos too.", isPresented: $showingFirstTimeAlert) {
                 Button("Cancel", role: .cancel) { }
             }
+            .fullScreenCover(isPresented: $showingAddToFoldersSheet, onDismiss: returnFromSelectFolder) {
+                SelectFolderToUploadView(selectedFolder: $selectedFolder)
+            }
         }
         .onAppear {
             if firstTime == true {
@@ -177,6 +183,22 @@ struct DisplayPhotoView: View {
                 showingFirstTimeAlert = true
                 firstLaunch = false
             }
+        }
+    }
+    
+    func returnFromSelectFolder() {
+        if let value = selectedFolder {
+            saveFolderName(parentId: value.id)
+        }
+    }
+    
+    func saveFolderName(parentId: String?) {
+        Task {
+            if let error = await firebaseService.createFolder(name: newFolderName, folderName: "usersFolders", isPublic: false, parentId: parentId) {
+                errorString = error
+                showingFolderExistsAlert = true
+            }
+            newFolderName = ""
         }
     }
     

@@ -21,5 +21,7 @@ struct PhotoInfo: Codable, Identifiable, Equatable, Hashable {
     var userId: String
     var publicFolders: [String] = []
     var uploadFileType: UploadFileType? = .images
-    var items: [PhotoInfo]?
+    var parentId: String?
+    var childrenIndexs: [Int]?
+    var children: [PhotoInfo]?
 }

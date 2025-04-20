@@ -30,7 +30,7 @@ struct SelectPhotoView: View {
     @State var uploadPhotoCount = 0
     @State var uploadPhotoOriginalCount = 0
     @State var showingAddToFoldersSheet = false
-    @State var selectedFolder: String = ""
+    @State var selectedFolder: PhotoInfo? = nil
     
     var body: some View {
         NavigationStack {
@@ -68,6 +68,8 @@ struct SelectPhotoView: View {
                             showingAddToFoldersSheet = true
                         } label: {
                             Text("Upload photo")
+                                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 44.0, alignment: .leading)
+                                .contentShape(Rectangle())
                         }
                         .DefaultTextButtonStyle()
                         .disabled(isButtonDisabled)
@@ -165,7 +167,7 @@ struct SelectPhotoView: View {
                 Text("You need to select a folder to upload the photo too. If no folders are present, please create one on the Photos tab.")
             }
             .fullScreenCover(isPresented: $showingAddToFoldersSheet, onDismiss: uploadPhotos) {
-                SelectFolderToUpload(selectedFolder: $selectedFolder)
+                SelectFolderToUploadView(selectedFolder: $selectedFolder)
             }
         }
     }
@@ -173,8 +175,8 @@ struct SelectPhotoView: View {
     func uploadPhotos() {
         uploadPhotoCount = 1
         uploadPhotoOriginalCount = imagesData.count
-        if selectedFolder.isEmpty == false {
-            if selectedFolder == "" {
+        if let value = self.selectedFolder {
+            if value.description == "" {
                 showingUploadFolderMissing = true
                 return
             }
@@ -186,7 +188,7 @@ struct SelectPhotoView: View {
 
                 do {
                     for imageData in imagesData {
-                        newPhoto = PhotoInfo(userfolder: selectedFolder, userId: user.uid, uploadFileType: settingsService.uploadFileType)
+                        newPhoto = PhotoInfo(userfolder: value.description, userId: user.uid, uploadFileType: settingsService.uploadFileType)
                         var path = "\(user.uid)/\(newPhoto.cloudStoreId)"
                         switch settingsService.uploadFileType {
                         case .images:
@@ -243,7 +245,7 @@ struct SelectPhotoView: View {
                     showingSuccess = true
                     isButtonDisabled = false
                     showingUploadButton = false
-                    selectedFolder = ""
+                    selectedFolder = nil
                     self.images = []
                     self.imagesData = []
                 }
@@ -253,7 +255,7 @@ struct SelectPhotoView: View {
                     selectedPhotos = []
                     isButtonDisabled = false
                     showingUploadButton = false
-                    selectedFolder = ""
+                    selectedFolder = nil
                     self.images = []
                     self.imagesData = []
                     fileUploadFailedMessage = "An error ocurred while uploading photo number: \(uploadPhotoCount). Could not continue uploading photos."

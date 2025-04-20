@@ -23,6 +23,7 @@ struct PublicFoldersView: View {
     @State var showingEditDescriptionAlert = false
     @State var showingPublicAutoView = false
     @State var showingNoAccessToFolder = false
+    @State var showingAddToFoldersSheet = false
     @State var newFolderName: String = ""
     @State var noAccessMessage: String = ""
     @State var forNoAccessUserName = false
@@ -30,60 +31,59 @@ struct PublicFoldersView: View {
     @State var newName = ""
     @State var firstTime: Bool = true
     @State var userId: String = ""
+    @State var selectedFolder: PublicFolderInfo?
     let database = Firestore.firestore()
     
     var body: some View {
         NavigationStack(path: $appNavigationState.photosPublicNavigation) {
-            List {
-                ForEach(0..<firebaseService.publicFolderInfos.count, id: \.self) { index in
-                    let item = firebaseService.publicFolderInfos[index]
-                    HStack {
-                        Text(item.name)
-                        Spacer()
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        selectedItem = item
-                        if item.userAccessIds.contains(userId) {
-                            switch settingsService.puplicPhotoDisplay {
-                            case .automaticDisplay:
-                                showingPublicAutoView = true
-                            case .galleryDisplay:
-                                let parameters = PublicPhotosGalleryParameters(item: item)
-                                appNavigationState.publicPhotosGalleryView(parameters: parameters)
-                            case .carouselDisplay:
-                                let parameters = PublicPhotosCarouselParameters(item: item)
-                                appNavigationState.publicPhotosCarouselView(parameters: parameters)
-                            case .listDisplay:
-                                let parameters = PublicPhotosListParameters(item: item)
-                                appNavigationState.publicPhotosListView(parameters: parameters)
-                            }
-                        } else {
-                            showingNoAccessToFolder = true
+            List(firebaseService.publicFolderInfos, children: \.children) { folderInfos in
+                let item = folderInfos
+                HStack {
+                    Text(item.name)
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedItem = item
+                    if item.parentId != nil || item.userAccessIds.contains(userId) {
+                        switch settingsService.puplicPhotoDisplay {
+                        case .automaticDisplay:
+                            showingPublicAutoView = true
+                        case .galleryDisplay:
+                            let parameters = PublicPhotosGalleryParameters(item: item)
+                            appNavigationState.publicPhotosGalleryView(parameters: parameters)
+                        case .carouselDisplay:
+                            let parameters = PublicPhotosCarouselParameters(item: item)
+                            appNavigationState.publicPhotosCarouselView(parameters: parameters)
+                        case .listDisplay:
+                            let parameters = PublicPhotosListParameters(item: item)
+                            appNavigationState.publicPhotosListView(parameters: parameters)
                         }
+                    } else {
+                        showingNoAccessToFolder = true
                     }
-                    .swipeActions(allowsFullSwipe: false) {
-                        if item.ownerId == Auth.auth().currentUser!.uid {
-                            Button {
-                                selectedItem = item
-                                newName = item.name
-                                showingEditDescriptionAlert = true
-                            } label: {
-                                Text("Edit")
-                            }
-                            .tint(.indigo)
-                            Button {
-                                let parameters = PublicFolderManageUsersParameters(item: item)
-                                appNavigationState.publicFolderManageUsersView(parameters: parameters)
-                            } label: {
-                                Text("Manage Users")
-                            }
-                            Button(role: .destructive) {
-                                selectedItem = item
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash.fill")
-                            }
+                }
+                .swipeActions(allowsFullSwipe: false) {
+                    if item.ownerId == Auth.auth().currentUser!.uid {
+                        Button {
+                            selectedItem = item
+                            newName = item.name
+                            showingEditDescriptionAlert = true
+                        } label: {
+                            Text("Edit")
+                        }
+                        .tint(.indigo)
+                        Button {
+                            let parameters = PublicFolderManageUsersParameters(item: item)
+                            appNavigationState.publicFolderManageUsersView(parameters: parameters)
+                        } label: {
+                            Text("Manage Users")
+                        }
+                        Button(role: .destructive) {
+                            selectedItem = item
+                            showingDeleteAlert = true
+                        } label: {
+                            Label("Delete", systemImage: "trash.fill")
                         }
                     }
                 }
@@ -205,21 +205,22 @@ struct PublicFoldersView: View {
             } message: {
                 Text("Enter a name")
             }
-            .alert("Name of Public Folder", isPresented: $showingGetNameAlert) {
+            .alert("Create A New Public Folder", isPresented: $showingGetNameAlert) {
                 TextField("", text: $newFolderName)
                     .keyboardType(.default)
-                Button("OK") {
+                Button("Place In Root") {
                     if newFolderName.isEmpty == true {
                         showingNameEmptyAlert = true
                         return
                     }
-                    Task {
-                        if let error = await firebaseService.createFolder(name: newFolderName, folderName: "publicFolders", isPublic: true) {
-                            errorString = error
-                            showingErrorAlert = true
-                        }
-                        newFolderName = ""
+
+                }
+                Button("Place In Subfolder") {
+                    if newFolderName.isEmpty == true {
+                        showingNameEmptyAlert = true
+                        return
                     }
+                    showingAddToFoldersSheet = true
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
@@ -262,6 +263,25 @@ struct PublicFoldersView: View {
             } message: {
                 Text("Enter a new description")
             }
+            .fullScreenCover(isPresented: $showingAddToFoldersSheet, onDismiss: returnFromSelectFolder) {
+                SelectPublicFolderToUploadView(selectedPublicFolder: $selectedFolder)
+            }
+        }
+    }
+    
+    func returnFromSelectFolder() {
+        if let value = selectedFolder {
+            saveFolderName(parentId: value.id)
+        }
+    }
+    
+    func saveFolderName(parentId: String?) {
+        Task {
+            if let error = await firebaseService.createFolder(name: newFolderName, folderName: "publicFolders", isPublic: true, parentId: parentId) {
+                errorString = error
+                showingErrorAlert = true
+            }
+            newFolderName = ""
         }
     }
     

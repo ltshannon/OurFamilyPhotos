@@ -25,7 +25,7 @@ class FirebaseService: ObservableObject {
     @Published var openFolderImageURL: URL?
     @Published var movieCameraURL: URL?
     @Published var items: [PhotoInfo] = []
-    @Published var userFolderNames: [String] = []
+    @Published var folders: [PhotoInfo] = []
     @Published var publicFolderInfos: [PublicFolderInfo] = []
     @Published var accessRequests: [AccessRequest] = []
     @Published var userInfos: [UserInfo] = []
@@ -36,8 +36,8 @@ class FirebaseService: ObservableObject {
     var accessRequestsListener: ListenerRegistration?
     var userInfosListener: ListenerRegistration?
     var fcm: String = ""
-    
-    
+    var foldersArray: [PhotoInfo] = []
+    var userFolderNames: [String] = []
     let database = Firestore.firestore()
     
     @MainActor
@@ -75,28 +75,61 @@ class FirebaseService: ObservableObject {
             }
             var results: [PhotoInfo] = []
             var folderSet = Set<String>()
+            self.foldersArray = []
+            var parentIdSet = Set<String>()
             do {
                 for document in documents {
                     let data = try document.data(as: PhotoInfo.self)
+                    self.foldersArray.append(data)
                     if data.isFolder == true {
                         folderSet.insert(data.userfolder)
+                        parentIdSet.insert(data.id ?? "")
                     }
                     results.append(data)
                 }
                 self.userFolderNames = Array(folderSet).sorted()
                 
-                var folders: [PhotoInfo] = []
-                for folderItem in folderSet {
-                    var items = results.filter { $0.userfolder == folderItem && $0.isFolder == false }
-                    if var realFolder = results.filter({ $0.isFolder == true && $0.userfolder == folderItem}).first {
-                        items.sort { $0.description < $1.description }
-                        realFolder.items = items
-                        folders.append(realFolder)
-                        folders.sort(by: { $0.userfolder < $1.userfolder })
+                self.foldersArray.sort { $0.parentId ?? "" < $1.parentId ?? "" }
+                for item in self.foldersArray {
+                    debugPrint("🥸", "id: \(item.id ?? "") parentId: \(item.parentId ?? "")")
+                }
+
+                var newArray: [PhotoInfo] = []
+                for parentId in parentIdSet {
+                    let items = self.foldersArray.filter { $0.parentId ?? "" == parentId }
+                    var arrayIndexs: [Int] = []
+                    if let parent = self.foldersArray.filter({ $0.id ?? "" == parentId }).first {
+                        let items2 = results.filter { $0.userfolder == parent.userfolder && $0.isFolder == false }
+                        if items2.count > 0 {
+                            for item in items2 {
+                                arrayIndexs.append(self.foldersArray.firstIndex(of: item) ?? 0)
+                            }
+                        }
+                    }
+                    if items.count > 0 {
+                        for item in items {
+                            arrayIndexs.append(self.foldersArray.firstIndex(of: item) ?? 0)
+                        }
+                    }
+                    if let i = self.foldersArray.firstIndex(where: { $0.id == parentId }) {
+                        self.foldersArray[i].childrenIndexs = arrayIndexs
                     }
                 }
 
-                self.items = folders
+                for (index, _) in self.foldersArray.enumerated() {
+                    self.recursiveFolder(index: index)
+                }
+                
+                for (index, _) in self.foldersArray.enumerated() {
+                    if self.foldersArray[index].parentId == nil && self.foldersArray[index].isFolder == true {
+                        newArray.append(self.foldersArray[index])
+                        newArray.sort { $0.description < $1.description }
+                    }
+                }
+                
+                self.items = newArray
+                self.folders = newArray
+                
                 debugPrint("count: \(results.count)")
             }
             catch {
@@ -107,6 +140,23 @@ class FirebaseService: ObservableObject {
         
         self.photosListener = listener
         
+    }
+    
+    func recursiveFolder(index: Int) {
+        if let childrenIndexs = self.foldersArray[index].childrenIndexs {
+            for childrenIndex in childrenIndexs {
+                recursiveFolder(index: childrenIndex)
+                if self.foldersArray[index].children != nil {
+                    if self.foldersArray[index].children!.contains(self.foldersArray[childrenIndex]) { continue }
+                    self.foldersArray[index].children!.append(self.foldersArray[childrenIndex])
+                    self.foldersArray[index].children!.sort { $0.description < $1.description }
+                } else {
+                    self.foldersArray[index].children = [self.foldersArray[childrenIndex]]
+                    self.foldersArray[index].children!.sort { $0.description < $1.description }
+                }
+            }
+        }
+        return
     }
     
     @MainActor
@@ -124,7 +174,24 @@ class FirebaseService: ObservableObject {
                     results.append(data)
                 }
                 
-                self.publicFolderInfos = results
+                for (index, _) in results.enumerated() {
+                    if let parentid = results[index].parentId {
+                        if let index2 = results.firstIndex(where: { $0.name == parentid }) {
+                            if results[index2].children == nil {
+                                results[index2].children = []
+                            }
+                            results[index2].children!.append(results[index])
+                        }
+                    }
+                }
+                
+                var newArray: [PublicFolderInfo] = []
+                for item in results {
+                    if item.parentId == nil {
+                        newArray.append(item)
+                    }
+                }
+                self.publicFolderInfos = newArray
             }
             catch {
                 debugPrint("🧨", "Error reading listenerForPublicFolders: \(error.localizedDescription)")
@@ -235,7 +302,7 @@ class FirebaseService: ObservableObject {
     func deleteItem(item: PhotoInfo) async {
 
         if item.isFolder == true {
-            if let items = item.items {
+            if let items = item.children {
                 for item in items {
                     await delete(item: item)
                 }
@@ -315,7 +382,7 @@ class FirebaseService: ObservableObject {
     }
     
     @MainActor
-    func createFolder(name: String, folderName: String, isPublic: Bool) async -> String? {
+    func createFolder(name: String, folderName: String, isPublic: Bool, parentId: String? = nil) async -> String? {
         guard let user = Auth.auth().currentUser else {
             return "Please log in"
         }
@@ -331,21 +398,26 @@ class FirebaseService: ObservableObject {
             } catch {
                 debugPrint("Error getting document for folder with name: \(name) error: \(error)")
             }
+            var values: [String: Any] = [
+                          "name"          : name,
+                          "ownerId"       : user.uid,
+                          "userAccessIds" : [user.uid]
+                         ]
+            if let parentId = parentId {
+                values["parentId"] = parentId
+            }
             do {
-                try await database.collection(folderName).document(name).setData([
-                    "name"          : name,
-                    "ownerId"       : user.uid,
-                    "userAccessIds" : [user.uid]
-                ])
+                try await database.collection(folderName).document(name).setData(values)
             } catch {
                 debugPrint("Error creating public folder with name: \(name) error: \(error)")
                 return error.localizedDescription
             }
         } else {
-            if userFolderNames.contains(folderName) {
+            let folderNameExists = userFolderNames.contains(name)
+            if folderNameExists == true {
                 return "Folder already exists"
             } else {
-                let folder = PhotoInfo(id: UUID().uuidString, userfolder: name, description: name, isFolder: true, thumbnailURL: self.folderImageURL, userId: user.uid, items: nil)
+                let folder = PhotoInfo(id: UUID().uuidString, userfolder: name, description: name, isFolder: true, thumbnailURL: self.folderImageURL, userId: user.uid, parentId: parentId, children: nil)
                 items.append(folder)
                 do {
                     try database.collection("allPhotos").addDocument(from: folder)

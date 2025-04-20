@@ -49,9 +49,9 @@ struct AddPhotoToFolder: View {
                 Text(item.description)
             }
             .padding([.leading, .trailing], 20)
-            List {
-                Section(header: Text("Public Folders")) {
-                    ForEach(firebaseService.publicFolderInfos, id: \.id) { folderName in
+            List(firebaseService.publicFolderInfos, children: \.children) { folderName in
+//                Section(header: Text("Public Folders")) {
+//                    ForEach(firebaseService.publicFolderInfos, id: \.id) { folderName in
                         HStack {
                             Text(folderName.name)
                             Spacer()
@@ -68,8 +68,8 @@ struct AddPhotoToFolder: View {
                                 showingAddPhotoToPublicFolderAlert = true
                             }
                         }
-                    }
-                }
+//                    }
+//                }
             }
             .navigationTitle("Add Photo to Public Folder")
             .navigationBarTitleDisplayMode(.inline)
