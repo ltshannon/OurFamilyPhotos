@@ -18,7 +18,7 @@ struct AddPhotoToFolder: View {
     var isPublic: Bool
     @State var selectedItem: PublicFolderInfo = PublicFolderInfo(name: "", ownerId: "", userAccessIds: [])
     @State var showingAddPhotoToPublicFolderAlert: Bool = false
-    @State var showingRemovingPhotoToPublicFolderAlert: Bool = false
+    @State var showingRemovingPhotoToPublicFolderAlert = false
     @State var showingErrorStringAlert = false
     @State var errorString = ""
     @State var photoInfo: PhotoInfo
@@ -49,27 +49,24 @@ struct AddPhotoToFolder: View {
                 Text(item.description)
             }
             .padding([.leading, .trailing], 20)
+
             List(firebaseService.publicFolderInfos, children: \.children) { folderName in
-//                Section(header: Text("Public Folders")) {
-//                    ForEach(firebaseService.publicFolderInfos, id: \.id) { folderName in
-                        HStack {
-                            Text(folderName.name)
-                            Spacer()
-                            Image(systemName: photoInfo.publicFolders.contains(folderName.name) ? "checkmark.circle.fill" : "circle")
-                                .resizable()
-                                .frame(width: 25, height: 25)
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            selectedItem = folderName
-                            if photoInfo.publicFolders.contains(folderName.name) {
-                                showingRemovingPhotoToPublicFolderAlert = true
-                            } else {
-                                showingAddPhotoToPublicFolderAlert = true
-                            }
-                        }
-//                    }
-//                }
+                HStack {
+                    Text(folderName.name)
+                    Spacer()
+                    Image(systemName: photoInfo.publicFolders.contains(folderName.name) ? "checkmark.circle.fill" : "circle")
+                        .resizable()
+                        .frame(width: 25, height: 25)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedItem = folderName
+                    if photoInfo.publicFolders.contains(folderName.name) {
+                        showingRemovingPhotoToPublicFolderAlert = true
+                    } else {
+                        showingAddPhotoToPublicFolderAlert = true
+                    }
+                }
             }
             .navigationTitle("Add Photo to Public Folder")
             .navigationBarTitleDisplayMode(.inline)

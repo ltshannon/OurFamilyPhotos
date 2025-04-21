@@ -16,6 +16,8 @@ struct PublicListView: View {
     @EnvironmentObject var firebaseService: FirebaseService
     var publicFolder: PublicFolderInfo
     @State var photoInfos: [PhotoInfo] = []
+    @State var selectedItem: PhotoInfo?
+    @State var showingDeleteAlert = false
     let database = Firestore.firestore()
     
     init(parameters: PublicPhotosListParameters) {
@@ -25,49 +27,38 @@ struct PublicListView: View {
     var body: some View {
         List {
             ForEach(photoInfos, id: \.id) { item in
-                NavigationLink {
-                    let parameters = PhotosDetailParameters(item: item)
-                    DetailsPhotosView(parameters: parameters)
-                } label: {
-                    HStack {
-                        AsyncImage(url: item.thumbnailURL) { phase in
-                            if let image = phase.image {
-                                image
-                                    .resizable()
-                            } else if phase.error != nil {
-                                Color.red
-                            } else {
-                                Image(systemName: "photo")
-                                    .resizable()
-                            }
+                HStack {
+                    AsyncImage(url: item.thumbnailURL) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                        } else if phase.error != nil {
+                            Color.red
+                        } else {
+                            Image(systemName: "photo")
+                                .resizable()
                         }
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 75)
-                        .cornerRadius(8.0)
-                        Text(item.description)
                     }
-                    .contentShape(Rectangle())
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 75)
+                    .cornerRadius(8.0)
+                    Text(item.description)
                 }
-//                .swipeActions(allowsFullSwipe: false) {
-//                    Button {
-//                        selectedItem = item
-//                        newDescription = item.description
-//                        showingEditDescriptionAlert = true
-//                    } label: {
-//                        Text("Edit Description")
-//                    }
-//                    .tint(.indigo)
-//                    Button(role: .destructive) {
-//                        selectedItem = item
-//                        showingDeleteAlert = true
-//                    } label: {
-//                        Label("Delete", systemImage: "trash.fill")
-//                    }
-//                }
-//                .onTapGesture {
-//                    let parameters = PhotosDetailParameters(item: item)
-//                    appNavigationState.photosDetailView(parameters: parameters)
-//                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    let parameters = PhotosDetailParameters(item: item)
+                    appNavigationState.photosPublicDetailView(parameters: parameters)
+                }
+                .swipeActions(allowsFullSwipe: false) {
+                    if item.userId == Auth.auth().currentUser!.uid {
+                        Button(role: .destructive) {
+                            selectedItem = item
+                            showingDeleteAlert = true
+                        } label: {
+                            Label("Delete", systemImage: "trash.fill")
+                        }
+                    }
+                }
             }
         }
         .navigationTitle("Public Folder: \(publicFolder.name)")
@@ -76,6 +67,16 @@ struct PublicListView: View {
             Task {
                 photoInfos = await firebaseService.getPhotosForPublicFolder(name: publicFolder.name)
             }
+        }
+        .alert("Are you sure you want to remove this?", isPresented: $showingDeleteAlert) {
+            Button("OK", role: .destructive) {
+                Task {
+                    if let item = selectedItem {
+                        await firebaseService.deletePublicItem(item: item, publicFolder: publicFolder)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) { }
         }
     }
     

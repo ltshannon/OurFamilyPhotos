@@ -299,6 +299,16 @@ class FirebaseService: ObservableObject {
         
     }
     
+    func deletePublicItem(item: PhotoInfo, publicFolder: PublicFolderInfo) async {
+        if let id = item.id {
+            do {
+                try await database.collection("allPhotos").document(id).updateData(["publicFolders": FieldValue.arrayRemove([publicFolder.name])])
+            } catch {
+                debugPrint("🧨", "Error deletePublicFolder: \(error)")
+            }
+        }
+    }
+    
     func deleteItem(item: PhotoInfo) async {
 
         if item.isFolder == true {

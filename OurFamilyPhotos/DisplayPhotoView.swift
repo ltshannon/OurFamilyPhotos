@@ -57,6 +57,10 @@ struct DisplayPhotoView: View {
                     Text(item.isFolder ? "" : (item.publicFolders.count > 0 ? "Public" : "Private") )
                 }
                 .contentShape(Rectangle())
+                .onTapGesture {
+                    let parameters = PhotosDetailParameters(item: item)
+                    appNavigationState.photosDetailView(parameters: parameters)
+                }
                 .swipeActions(allowsFullSwipe: false) {
                     if item.isFolder == false {
                         Button {
@@ -66,13 +70,6 @@ struct DisplayPhotoView: View {
                             Text("Access")
                         }
                         .tint(.orange)
-                        Button {
-                            let parameters = PhotosDetailParameters(item: item)
-                            appNavigationState.photosDetailView(parameters: parameters)
-                        } label: {
-                            Text("Details")
-                        }
-                        .tint(.cyan)
                     }
                     Button {
                         selectedItem = item
