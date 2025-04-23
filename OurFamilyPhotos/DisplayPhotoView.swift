@@ -63,13 +63,13 @@ struct DisplayPhotoView: View {
                 }
                 .swipeActions(allowsFullSwipe: false) {
                     if item.isFolder == false {
-                        Button {
-                            selectedItem = item
-                            showingAddToPublicFolderSheet = true
-                        } label: {
-                            Text("Access")
-                        }
-                        .tint(.orange)
+//                        Button {
+//                            selectedItem = item
+//                            showingAddToPublicFolderSheet = true
+//                        } label: {
+//                            Text("Access")
+//                        }
+//                        .tint(.orange)
                     }
                     Button {
                         selectedItem = item

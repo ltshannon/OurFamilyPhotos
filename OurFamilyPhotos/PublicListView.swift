@@ -44,6 +44,7 @@ struct PublicListView: View {
                     .cornerRadius(8.0)
                     Text(item.description)
                 }
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     let parameters = PhotosDetailParameters(item: item)
