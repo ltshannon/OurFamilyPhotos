@@ -25,12 +25,27 @@ struct PublicFolderHierarchyView: View {
         NavigationStack {
             List(firebaseService.publicFolderInfos, children: \.children) { folderName in
                 HStack {
+                    AsyncImage(url: firebaseService.folderImageURL)  { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                        } else if phase.error != nil {
+                            Color.red
+                        } else {
+                            Image(systemName: "photo")
+                                .resizable()
+                        }
+                    }
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 75)
+                    .cornerRadius(8.0)
                     Text(folderName.name)
                     Spacer()
                     Image(systemName: item.publicFolders.contains(folderName.name) ? "checkmark.circle.fill" : "circle")
                         .resizable()
                         .frame(width: 25, height: 25)
                 }
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     selectedItem = folderName

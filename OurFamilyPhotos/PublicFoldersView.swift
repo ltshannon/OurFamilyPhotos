@@ -39,13 +39,27 @@ struct PublicFoldersView: View {
             List(firebaseService.publicFolderInfos, children: \.children) { folderInfos in
                 let item = folderInfos
                 HStack {
+                    AsyncImage(url: firebaseService.folderImageURL)  { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                        } else if phase.error != nil {
+                            Color.red
+                        } else {
+                            Image(systemName: "photo")
+                                .resizable()
+                        }
+                    }
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 75)
+                    .cornerRadius(8.0)
                     Text(item.name)
-                    Spacer()
                 }
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     selectedItem = item
-                    if item.parentId != nil || item.userAccessIds.contains(userId) {
+                    if item.userAccessIds.contains(userId) {
                         switch settingsService.puplicPhotoDisplay {
                         case .automaticDisplay:
                             showingPublicAutoView = true

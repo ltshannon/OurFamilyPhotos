@@ -162,6 +162,10 @@ class FirebaseService: ObservableObject {
     @MainActor
     func listenerForPublicFolders() async {
         
+        guard let user = Auth.auth().currentUser else {
+            return
+        }
+        
         let listener = database.collection("publicFolders").addSnapshotListener({ querySnapshot, error in
             guard let documents = querySnapshot?.documents else {
                 debugPrint("🧨", "Error listenerForPublicPhotoInfos: \(error!)")
@@ -206,6 +210,10 @@ class FirebaseService: ObservableObject {
     @MainActor
     func listenerForAccessRequests() async {
         
+        guard let user = Auth.auth().currentUser else {
+            return
+        }
+        
         let listener = database.collection("accessRequests").addSnapshotListener({ querySnapshot, error in
             guard let documents = querySnapshot?.documents else {
                 debugPrint("🧨", "Error listenerForAccessRequests: \(error!)")
@@ -215,7 +223,9 @@ class FirebaseService: ObservableObject {
             do {
                 for document in documents {
                     let data = try document.data(as: AccessRequest.self)
-                    results.append(data)
+                    if data.userId == user.uid || data.ownerId == user.uid {
+                        results.append(data)
+                    }
                 }
                 results.sort { $0.date > $1.date }
                 self.accessRequests = results
@@ -505,6 +515,15 @@ class FirebaseService: ObservableObject {
             try await database.collection("publicFolders").document(folderName).updateData(["userAccessIds": FieldValue.arrayUnion([userId])])
         } catch {
             debugPrint("🧨", "updateAccessForPublicFolder: \(error)")
+        }
+    }
+    
+    func deleteAccessForPublicFolder(id: String) async {
+        
+        do {
+            try await database.collection("accessRequests").document(id).delete()
+        } catch {
+            debugPrint("🧨", "deleteAccessForPublicFolder: \(error)")
         }
     }
     

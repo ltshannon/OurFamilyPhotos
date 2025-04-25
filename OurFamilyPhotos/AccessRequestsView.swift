@@ -13,6 +13,7 @@ struct AccessRequestsView: View {
     @State var showingAddNameAlert = false
     @State var showingMessageEmptyAlert = false
     @State var showingNameEmptyAlert = false
+    @State var showingDeleteAlert = false
     @State var newMessage = ""
     @State var newName = ""
     @State var selectedFolderId = ""
@@ -30,19 +31,29 @@ struct AccessRequestsView: View {
                         Text("Status: " + (item.state == .waiting ? (item.ownerId == firebaseService.userId ? "waiting for your approval" : "waiting for a response") : item.state.rawValue))
                     }
                     .swipeActions(allowsFullSwipe: false) {
-                        if item.ownerId == firebaseService.userId && item.state == .waiting {
-                            Button {
-                                selectedAccessRequest = item
-                                showingAddNameAlert = true
-                            } label: {
-                                Text("Accept")
-                            }
-                            Button(role: .destructive) {
-                                selectedAccessRequest = item
-                                selectedFolderId = item.id ?? ""
-                                showingGetRejectionReponseAlert = true
-                            } label: {
-                                Text("Reject")
+                        if item.ownerId == firebaseService.userId {
+                            if item.state == .waiting {
+                                Button {
+                                    selectedAccessRequest = item
+                                    showingAddNameAlert = true
+                                } label: {
+                                    Text("Accept")
+                                }
+                                Button(role: .destructive) {
+                                    selectedAccessRequest = item
+                                    selectedFolderId = item.id ?? ""
+                                    showingGetRejectionReponseAlert = true
+                                } label: {
+                                    Text("Reject")
+                                }
+                            } else {
+                                Button(role: .destructive) {
+                                    selectedAccessRequest = item
+                                    selectedFolderId = item.id ?? ""
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Text("Delete")
+                                }
                             }
                         }
                     }
@@ -85,16 +96,24 @@ struct AccessRequestsView: View {
                     return
                 }
                 Task {
-                    Task {
-                        await firebaseService.updateStateAccessRequest(docId: selectedAccessRequest.id ?? "", state: .approved, message: selectedAccessRequest.message, name: newName)
-                        await firebaseService.updateAccessForPublicFolder(folderName: selectedAccessRequest.folderName, userId: selectedAccessRequest.userId)
-                        newName = ""
-                    }
+                    await firebaseService.updateStateAccessRequest(docId: selectedAccessRequest.id ?? "", state: .approved, message: selectedAccessRequest.message, name: newName)
+                    await firebaseService.updateAccessForPublicFolder(folderName: selectedAccessRequest.folderName, userId: selectedAccessRequest.userId)
+                    newName = ""
                 }
             }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("Enter a Response")
+        }
+        .alert("", isPresented: $showingDeleteAlert) {
+            Button("OK") {
+                Task {
+                    await firebaseService.deleteAccessForPublicFolder(id: selectedAccessRequest.id ?? "")
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Are you sure you want to delete this?")
         }
         .alert("You didn't add a response", isPresented: $showingMessageEmptyAlert) {
             Button("Cancel", role: .cancel) {
